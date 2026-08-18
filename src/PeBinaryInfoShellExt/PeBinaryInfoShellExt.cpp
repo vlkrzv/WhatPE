@@ -59,8 +59,6 @@ STDMETHODIMP CPeBinaryInfoShellExt::Initialize(
 
 INT_PTR CALLBACK PropPageDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	static HBRUSH testBrush;
-
 	BOOL bRet = FALSE;
 
 	CString str;
@@ -89,13 +87,25 @@ INT_PTR CALLBACK PropPageDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		break;
 
 	case WM_CTLCOLORDLG:
-		return (INT_PTR)(testBrush);
+		return (INT_PTR)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+
+	case WM_DESTROY:
+		{
+			HBRUSH dlgBrush = (HBRUSH)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+			if (dlgBrush != nullptr)
+			{
+				DeleteObject(dlgBrush);
+				SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
+			}
+		}
+		break;
 
 	case WM_INITDIALOG:
 		{
 			bRet = TRUE;
 
-			testBrush = CreateSolidBrush(RGB(255, 255, 255));
+			HBRUSH dlgBrush = CreateSolidBrush(RGB(255, 255, 255));
+			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)dlgBrush);
 
 			PROPSHEETPAGE*  ppsp = (PROPSHEETPAGE*)lParam;
 
