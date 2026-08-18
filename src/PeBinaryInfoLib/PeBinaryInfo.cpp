@@ -144,9 +144,14 @@ namespace peinfo
 		return IsPe32Plus() ? imageNtHeaders_->OptionalHeader64.DataDirectory : imageNtHeaders_->OptionalHeader32.DataDirectory;
 	}
 
+	DWORD PeFileInfoExtractor::GetNumberOfRvaAndSizes()
+	{
+		return IsPe32Plus() ? imageNtHeaders_->OptionalHeader64.NumberOfRvaAndSizes : imageNtHeaders_->OptionalHeader32.NumberOfRvaAndSizes;
+	}
+
 	PIMAGE_SECTION_HEADER PeFileInfoExtractor::GetSectionHeader()
 	{
-		return (PIMAGE_SECTION_HEADER)((uint8_t*)GetDataDirectory() + IMAGE_NUMBEROF_DIRECTORY_ENTRIES * sizeof(IMAGE_DATA_DIRECTORY));
+		return (PIMAGE_SECTION_HEADER)((uint8_t*)GetDataDirectory() + GetNumberOfRvaAndSizes() * sizeof(IMAGE_DATA_DIRECTORY));
 	}
 
 	bool PeFileInfoExtractor::TryGetClrHeader(PIMAGE_COR20_HEADER& clrHeader)

@@ -84,6 +84,7 @@ namespace peinfo
 
 	private:
 		PIMAGE_DATA_DIRECTORY GetDataDirectory();
+		DWORD GetNumberOfRvaAndSizes();
 		PIMAGE_SECTION_HEADER GetSectionHeader();
 		bool TryGetClrHeader(PIMAGE_COR20_HEADER& clrHeader);
 		std::wstring GetTargetFramework(PIMAGE_COR20_HEADER clrHeader);
