@@ -34,20 +34,36 @@ namespace peinfo
 		HANDLE fileHandle = CreateFile(filePath.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
 		HandleWin32Error(fileHandle == INVALID_HANDLE_VALUE);
 
-		LARGE_INTEGER fileSize{};
-		BOOL result = GetFileSizeEx(fileHandle, &fileSize);
-		HandleWin32Error(result == FALSE);
+		try
+		{
+			LARGE_INTEGER fileSize{};
+			BOOL result = GetFileSizeEx(fileHandle, &fileSize);
+			HandleWin32Error(result == FALSE);
 
-		HANDLE fileMappingHandle = CreateFileMapping(fileHandle, nullptr, PAGE_READONLY, 0, 0, nullptr);
-		HandleWin32Error(fileMappingHandle == nullptr);
+			HANDLE fileMappingHandle = CreateFileMapping(fileHandle, nullptr, PAGE_READONLY, 0, 0, nullptr);
+			HandleWin32Error(fileMappingHandle == nullptr);
 
-		base_ = MapViewOfFile(fileMappingHandle, FILE_MAP_READ, 0, 0, 0);
-		HandleWin32Error(base_ == nullptr);
+			try
+			{
+				base_ = MapViewOfFile(fileMappingHandle, FILE_MAP_READ, 0, 0, 0);
+				HandleWin32Error(base_ == nullptr);
+			}
+			catch (...)
+			{
+				CloseHandle(fileMappingHandle);
+				throw;
+			}
 
-		result = CloseHandle(fileMappingHandle);
-		HandleWin32Error(result == FALSE);
+			result = CloseHandle(fileMappingHandle);
+			HandleWin32Error(result == FALSE);
+		}
+		catch (...)
+		{
+			CloseHandle(fileHandle);
+			throw;
+		}
 
-		result = CloseHandle(fileHandle);
+		BOOL result = CloseHandle(fileHandle);
 		HandleWin32Error(result == FALSE);
 	}
 
