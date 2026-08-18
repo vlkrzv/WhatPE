@@ -6,7 +6,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-regsvr32.exe /u "%~dp0PeBinaryInfoShellExt.dll"
+regsvr32.exe /u "%~dp0WhatPEShellExt.dll"
 
 echo.
 pause
