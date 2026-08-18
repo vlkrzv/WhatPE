@@ -12,8 +12,6 @@ STDMETHODIMP CPeBinaryInfoShellExt::Initialize(
 	LPDATAOBJECT pDataObj,
 	HKEY hProgID)
 {
-	::OutputDebugString(L"[!!!] CFormatInfoShellExt::Initialize");
-
 	FORMATETC fmt = { CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 	STGMEDIUM stg = { TYMED_HGLOBAL };
 	HDROP hDrop;
@@ -47,8 +45,6 @@ STDMETHODIMP CPeBinaryInfoShellExt::Initialize(
 	if (0 == DragQueryFile(hDrop, 0, file, MAX_PATH))
 		hr = E_INVALIDARG;
 
-	::OutputDebugString(file);
-
 	m_filePath = file;
 
 	GlobalUnlock(stg.hGlobal);
@@ -61,10 +57,6 @@ INT_PTR CALLBACK PropPageDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 {
 	BOOL bRet = FALSE;
 
-	CString str;
-	str.Format(L"[peek] uMsg = %x", uMsg);
-	// ::OutputDebugString(str);
-
 	switch (uMsg)
 	{
 	case WM_SHOWWINDOW:
@@ -76,11 +68,6 @@ INT_PTR CALLBACK PropPageDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 				HWND hwndPeInfoListView = GetDlgItem(hwnd, IDC_LIST);
 
-				//CString str;
-				//str.Format(L"[peek] %p %d, %d, %d, %d", hwndPeInfoListView, r.left, r.top, r.right, r.bottom);
-				//::OutputDebugString(str);
-
-				//
 				MoveWindow(hwndPeInfoListView, 0 + 10, 0 + 12, r.right - 20, r.bottom - 24, TRUE);
 			}
 		}
@@ -176,17 +163,14 @@ UINT CALLBACK PropPageCallbackProc(HWND hwnd, UINT uMsg, LPPROPSHEETPAGE ppsp)
 
 STDMETHODIMP CPeBinaryInfoShellExt::AddPages(LPFNADDPROPSHEETPAGE lpfnAddPageProc, LPARAM lParam)
 {
-	::OutputDebugString(L"[!!!] CFormatInfoShellExt::AddPages");
-
 	peinfo::PeFileFormattedInfo peFileFormattedInfo;
 	try
 	{
 		peinfo::PeFileFormattedInfoExtractor peFileFormattedInfoExtractor(m_filePath);
 		peFileFormattedInfo = peFileFormattedInfoExtractor.Extract();
 	}
-	catch (const std::exception& e)
+	catch (const std::exception&)
 	{
-		OutputDebugStringA(e.what());
 		return E_UNEXPECTED;
 	}
 	
