@@ -452,76 +452,85 @@ namespace peinfo
 		}
 	}
 
-	// https://dev.to/yumetodo/list-of-mscver-and-mscfullver-8nd
+	// Every VS release since VS2015 shares linker major version 14 ("v140" onward) and is only
+	// distinguished by the minor version, which keeps climbing across VS updates without the
+	// toolset ever being renamed -- e.g. VS2022 alone spans roughly 14.30 through 14.4x. Below
+	// VS2015, each VS release had its own distinct linker major version instead, so those are
+	// matched exactly rather than by range.
+	//
+	// Minor-version-to-VS-year ranges below are per:
+	// https://learn.microsoft.com/en-us/cpp/overview/compiler-versions
+	// https://devblogs.microsoft.com/cppblog/msvc-toolset-minor-version-number-14-40-in-vs-2022-v17-10/
+	// (confirms VS2026 toolsets start at 14.50 -- also verified directly: this project's own
+	// VS2026/v145 build reports 14.51.)
 	std::wstring PeFileFormattedInfoExtractor::GetToolset()
 	{
 		WORD linkerVersion = peFileInfoExtractor_.GetLinkerVersion();
+		BYTE major = HIBYTE(linkerVersion);
+		BYTE minor = LOBYTE(linkerVersion);
+
 		std::wstring toolsetName = L"(Unknown)";
-		switch (linkerVersion)
+		if (major == 0x0E) // 14
 		{
-		case 0x0E15:
-			toolsetName = L"Visual Studio 2019 (16.1.2-16.3.2)";
-			break;
-		case 0x0E14:
-			toolsetName = L"Visual Studio 2019 (16.0.0)";
-			break;
-		case 0x0E10:
-			toolsetName = L"Visual Studio 2017 (15.9.0-15.9.11)";
-			break;
-		case 0x0E0F:
-			toolsetName = L"Visual Studio 2017 (15.8.0)";
-			break;
-		case 0x0E0E:
-			toolsetName = L"Visual Studio 2017 (15.7.1-15.7.5)";
-			break;
-		case 0x0E0D:
-			toolsetName = L"Visual Studio 2017 (15.6.0-15.6.7)";
-			break;
-		case 0x0E0C:
-			toolsetName = L"Visual Studio 2017 (15.5.2-15.5.7)";
-			break;
-		case 0x0E0B:
-			toolsetName = L"Visual Studio 2017 (15.3.3-15.4.5)";
-			break;
-		case 0x0E0A:
-			toolsetName = L"Visual Studio 2017 (15.0-15.2)";
-			break;
-		case 0x0E00:
-			toolsetName = L"Visual Studio 2015";
-			break;
-		case 0x0C00:
-			toolsetName = L"Visual Studio 2013";
-			break;
-		case 0x0B00:
-			toolsetName = L"Visual Studio 2012";
-			break;
-		case 0x0A00:
-			toolsetName = L"Visual Studio 2010";
-			break;
-		case 0x0900:
-			toolsetName = L"Visual Studio 2008";
-			break;
-		case 0x0800:
-			toolsetName = L"Visual Studio 2005";
-			break;
-		case 0x070A:
-			toolsetName = L"Visual Studio .NET 2003";
-			break;
-		case 0x0700:
-			toolsetName = L"Visual Studio .NET 2002";
-			break;
-		case 0x0600:
-			toolsetName = L"Visual Studio 6.0";
-			break;
-		case 0x0500:
-			toolsetName = L"Visual Studio 5.0";
-			break;
-		case 0x3000:
-			toolsetName = L"Visual Studio C#";
-			break;
+			if (minor == 0)
+			{
+				toolsetName = L"Visual Studio 2015";
+			}
+			else if (minor <= 19)
+			{
+				toolsetName = L"Visual Studio 2017";
+			}
+			else if (minor <= 29)
+			{
+				toolsetName = L"Visual Studio 2019";
+			}
+			else if (minor <= 49)
+			{
+				toolsetName = L"Visual Studio 2022";
+			}
+			else
+			{
+				toolsetName = L"Visual Studio 2026 or later";
+			}
+		}
+		else
+		{
+			switch (linkerVersion)
+			{
+			case 0x0C00:
+				toolsetName = L"Visual Studio 2013";
+				break;
+			case 0x0B00:
+				toolsetName = L"Visual Studio 2012";
+				break;
+			case 0x0A00:
+				toolsetName = L"Visual Studio 2010";
+				break;
+			case 0x0900:
+				toolsetName = L"Visual Studio 2008";
+				break;
+			case 0x0800:
+				toolsetName = L"Visual Studio 2005";
+				break;
+			case 0x070A:
+				toolsetName = L"Visual Studio .NET 2003";
+				break;
+			case 0x0700:
+				toolsetName = L"Visual Studio .NET 2002";
+				break;
+			case 0x0600:
+				toolsetName = L"Visual Studio 6.0";
+				break;
+			case 0x0500:
+				toolsetName = L"Visual Studio 5.0";
+				break;
+			case 0x3000:
+				toolsetName = L"Visual Studio C#";
+				break;
+			}
 		}
 
-		auto versionString = L"v" + std::to_wstring(HIBYTE(linkerVersion)) + L"." + std::to_wstring(LOBYTE(linkerVersion));
+		auto versionString = L"v" + std::to_wstring(major) + L"." + std::to_wstring(minor);
 		return versionString + L" (" + toolsetName + L")";
 	}
 
