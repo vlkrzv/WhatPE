@@ -31,40 +31,18 @@ namespace peinfo
 
 	MappedPeFile::MappedPeFile(std::wstring filePath)
 	{
-		HANDLE fileHandle = CreateFile(filePath.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
+		ATL::CHandle fileHandle(CreateFile(filePath.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr));
 		HandleWin32Error(fileHandle == INVALID_HANDLE_VALUE);
 
-		try
-		{
-			LARGE_INTEGER fileSize{};
-			BOOL result = GetFileSizeEx(fileHandle, &fileSize);
-			HandleWin32Error(result == FALSE);
-
-			HANDLE fileMappingHandle = CreateFileMapping(fileHandle, nullptr, PAGE_READONLY, 0, 0, nullptr);
-			HandleWin32Error(fileMappingHandle == nullptr);
-
-			try
-			{
-				base_ = MapViewOfFile(fileMappingHandle, FILE_MAP_READ, 0, 0, 0);
-				HandleWin32Error(base_ == nullptr);
-			}
-			catch (...)
-			{
-				CloseHandle(fileMappingHandle);
-				throw;
-			}
-
-			result = CloseHandle(fileMappingHandle);
-			HandleWin32Error(result == FALSE);
-		}
-		catch (...)
-		{
-			CloseHandle(fileHandle);
-			throw;
-		}
-
-		BOOL result = CloseHandle(fileHandle);
+		LARGE_INTEGER fileSize{};
+		BOOL result = GetFileSizeEx(fileHandle, &fileSize);
 		HandleWin32Error(result == FALSE);
+
+		ATL::CHandle fileMappingHandle(CreateFileMapping(fileHandle, nullptr, PAGE_READONLY, 0, 0, nullptr));
+		HandleWin32Error(fileMappingHandle == nullptr);
+
+		base_ = MapViewOfFile(fileMappingHandle, FILE_MAP_READ, 0, 0, 0);
+		HandleWin32Error(base_ == nullptr);
 	}
 
 	MappedPeFile::~MappedPeFile()
