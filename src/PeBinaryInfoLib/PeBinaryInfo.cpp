@@ -154,6 +154,37 @@ namespace peinfo
 		return (PIMAGE_SECTION_HEADER)((uint8_t*)GetDataDirectory() + GetNumberOfRvaAndSizes() * sizeof(IMAGE_DATA_DIRECTORY));
 	}
 
+	// Deterministic builds (/deterministic, the .NET SDK's Roslyn default) replace the PE
+	// TimeDateStamp with a hash of the file's own content, and the linker-version fields aren't
+	// meaningful either since Roslyn writes the PE directly rather than going through link.exe.
+	// Such builds add an IMAGE_DEBUG_TYPE_REPRO entry to the debug directory to say so.
+	bool PeFileInfoExtractor::IsDeterministicBuild()
+	{
+		if (GetNumberOfRvaAndSizes() <= IMAGE_DIRECTORY_ENTRY_DEBUG)
+		{
+			return false;
+		}
+
+		IMAGE_DATA_DIRECTORY debugDirectory = GetDataDirectory()[IMAGE_DIRECTORY_ENTRY_DEBUG];
+		if (debugDirectory.VirtualAddress == 0)
+		{
+			return false;
+		}
+
+		auto debugEntries = (PIMAGE_DEBUG_DIRECTORY)(((uint8_t*)mappedPeFile_.GetBaseAddress()) + RvaToFileOffset(debugDirectory.VirtualAddress));
+		auto debugEntryCount = debugDirectory.Size / sizeof(IMAGE_DEBUG_DIRECTORY);
+
+		for (DWORD i = 0; i < debugEntryCount; ++i)
+		{
+			if (debugEntries[i].Type == IMAGE_DEBUG_TYPE_REPRO)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	bool PeFileInfoExtractor::TryGetClrHeader(PIMAGE_COR20_HEADER& clrHeader)
 	{
 		IMAGE_DATA_DIRECTORY clrDirectory = GetDataDirectory()[IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR];
@@ -399,6 +430,11 @@ namespace peinfo
 
 	std::wstring PeFileFormattedInfoExtractor::GetTimeDateStamp()
 	{
+		if (peFileInfoExtractor_.IsDeterministicBuild())
+		{
+			return L"N/A (deterministic build)";
+		}
+
 		time_t timeDateStamp = peFileInfoExtractor_.GetTimeDateStamp();
 		std::tm tm{};
 		errno_t e = localtime_s(&tm, &timeDateStamp);
@@ -465,6 +501,11 @@ namespace peinfo
 	// VS2026/v145 build reports 14.51.)
 	std::wstring PeFileFormattedInfoExtractor::GetToolset()
 	{
+		if (peFileInfoExtractor_.IsDeterministicBuild())
+		{
+			return L"N/A (deterministic build)";
+		}
+
 		WORD linkerVersion = peFileInfoExtractor_.GetLinkerVersion();
 		BYTE major = HIBYTE(linkerVersion);
 		BYTE minor = LOBYTE(linkerVersion);

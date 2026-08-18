@@ -81,6 +81,7 @@ namespace peinfo
 		BuildConfiguration GetBuildConfiguration();
 		ClrHeaderInfo GetClrHeaderInfo();
 		DWORD GetDllCharacteristics();
+		bool IsDeterministicBuild();
 
 	private:
 		PIMAGE_DATA_DIRECTORY GetDataDirectory();
