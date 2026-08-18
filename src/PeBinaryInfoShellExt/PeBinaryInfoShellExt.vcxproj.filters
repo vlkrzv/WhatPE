@@ -76,10 +76,10 @@
     <None Include="PeBinaryInfoShellExt.def">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="install.bat">
+    <None Include="install.cmd">
       <Filter>Installation</Filter>
     </None>
-    <None Include="uninstall.bat">
+    <None Include="uninstall.cmd">
       <Filter>Installation</Filter>
     </None>
   </ItemGroup>
