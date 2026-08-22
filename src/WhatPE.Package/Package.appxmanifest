@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap desktop4 mp com rescap">
+
+  <Identity
+    Name="WhatPE"
+    Publisher="__WHATPE_LOCAL_PUBLISHER__"
+    Version="1.0.0.0" />
+
+  <mp:PhoneIdentity PhoneProductId="00000000-0000-0000-0000-000000000000" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+
+  <Properties>
+    <DisplayName>WhatPE</DisplayName>
+    <PublisherDisplayName>__WHATPE_LOCAL_PUBLISHER_DISPLAYNAME__</PublisherDisplayName>
+    <Logo>Images\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.22000.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-us"/>
+  </Resources>
+
+  <Applications>
+    <Application Id="WhatPE" Executable="PeBinaryInfo\WhatPE.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="WhatPE"
+        Description="WhatPE PE build-metadata inspector"
+        BackgroundColor="transparent"
+        Square150x150Logo="Images\Square150x150Logo.png"
+        Square44x44Logo="Images\Square44x44Logo.png">
+      </uap:VisualElements>
+      <Extensions>
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:SurrogateServer AppId="EB945291-A13D-497A-9CF3-C90986E0C8A1" DisplayName="WhatPE Explorer Command">
+              <com:Class Id="EB945291-A13D-497A-9CF3-C90986E0C8A1" Path="PeBinaryInfoExplorerCommand\WhatPE.ExplorerCommand.dll" ThreadingModel="STA" />
+            </com:SurrogateServer>
+          </com:ComServer>
+        </com:Extension>
+        <desktop4:Extension Category="windows.fileExplorerContextMenus">
+          <desktop4:FileExplorerContextMenus>
+            <desktop4:ItemType Type=".exe">
+              <desktop4:Verb Id="WhatPECommand" Clsid="EB945291-A13D-497A-9CF3-C90986E0C8A1" />
+            </desktop4:ItemType>
+            <desktop4:ItemType Type=".dll">
+              <desktop4:Verb Id="WhatPECommand" Clsid="EB945291-A13D-497A-9CF3-C90986E0C8A1" />
+            </desktop4:ItemType>
+          </desktop4:FileExplorerContextMenus>
+        </desktop4:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+
+</Package>
