@@ -185,6 +185,35 @@ namespace peinfo
 		return false;
 	}
 
+	// The "Rich" header is an undocumented block that link.exe (and only link.exe) writes into
+	// the DOS stub, recording the MS toolset components used to produce each object file. Its
+	// presence is strong evidence a binary genuinely went through the MS linker. Its absence is
+	// a red flag for the linker-version fields read elsewhere: several non-MSVC linkers (notably
+	// lld-link, LLVM's MSVC-compatible linker used to build Chromium/Electron apps) mimic MSVC's
+	// version-field conventions -- typically reporting a fixed 14.0 -- without ever emitting a
+	// Rich header, which is why an Electron app can misleadingly read as "Visual Studio 2015".
+	bool PeFileInfoExtractor::HasRichHeader()
+	{
+		PIMAGE_DOS_HEADER imageDosHeader = (PIMAGE_DOS_HEADER)mappedPeFile_.GetBaseAddress();
+		LONG stubEnd = imageDosHeader->e_lfanew;
+		if (stubEnd <= (LONG)sizeof(IMAGE_DOS_HEADER))
+		{
+			return false;
+		}
+
+		const uint8_t* base = (const uint8_t*)imageDosHeader;
+		const DWORD richSignature = 0x68636952; // "Rich" little-endian
+		for (LONG offset = sizeof(IMAGE_DOS_HEADER); offset + (LONG)sizeof(DWORD) <= stubEnd; ++offset)
+		{
+			if (*(const DWORD*)(base + offset) == richSignature)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	bool PeFileInfoExtractor::TryGetClrHeader(PIMAGE_COR20_HEADER& clrHeader)
 	{
 		IMAGE_DATA_DIRECTORY clrDirectory = GetDataDirectory()[IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR];
@@ -278,7 +307,7 @@ namespace peinfo
 		PeFileFormattedInfoItem buildTime = { L"Build time", GetTimeDateStamp() };
 		PeFileFormattedInfoItem configuration = { L"Configuration", GetConfiguration() };
 		PeFileFormattedInfoItem platform = { L"Platform", GetPlatform() };
-		PeFileFormattedInfoItem toolset = { L"Toolset", GetToolset() };
+		PeFileFormattedInfoItem toolset = GetToolsetItem();
 		PeFileFormattedInfoCategory buildCategory = { L"Build", { description, buildTime, configuration, platform, toolset } };
 		categories.push_back(buildCategory);
 
@@ -496,11 +525,11 @@ namespace peinfo
 	// https://devblogs.microsoft.com/cppblog/msvc-toolset-minor-version-number-14-40-in-vs-2022-v17-10/
 	// (confirms VS2026 toolsets start at 14.50 -- also verified directly: this project's own
 	// VS2026/v145 build reports 14.51.)
-	std::wstring PeFileFormattedInfoExtractor::GetToolset()
+	PeFileFormattedInfoItem PeFileFormattedInfoExtractor::GetToolsetItem()
 	{
 		if (peFileInfoExtractor_.IsDeterministicBuild())
 		{
-			return L"N/A (deterministic build)";
+			return { L"Toolset", L"N/A (deterministic build)" };
 		}
 
 		WORD linkerVersion = peFileInfoExtractor_.GetLinkerVersion();
@@ -568,8 +597,14 @@ namespace peinfo
 			}
 		}
 
-		auto versionString = L"v" + std::to_wstring(major) + L"." + std::to_wstring(minor);
-		return versionString + L" (" + toolsetName + L")";
+		auto versionString = L"v" + std::to_wstring(major) + L"." + std::to_wstring(minor) + L" (" + toolsetName + L")";
+
+		if (!peFileInfoExtractor_.HasRichHeader())
+		{
+			return { L"Toolset", versionString, L"No Rich header found -- likely non-Microsoft linker" };
+		}
+
+		return { L"Toolset", versionString };
 	}
 
 	std::wstring PeFileFormattedInfoExtractor::GetConfiguration()

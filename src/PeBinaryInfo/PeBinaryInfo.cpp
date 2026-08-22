@@ -29,6 +29,10 @@ int wmain(int argc, wchar_t* argv[])
 			for (const auto& item : category.Items)
 			{
 				std::wcout << item.Name << L": " << item.Value << std::endl;
+				if (!item.Note.empty())
+				{
+					std::wcout << L"    (" << item.Note << L")" << std::endl;
+				}
 			}
 		}
 

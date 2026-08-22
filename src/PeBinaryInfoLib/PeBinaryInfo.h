@@ -82,6 +82,7 @@ namespace peinfo
 		ClrHeaderInfo GetClrHeaderInfo();
 		DWORD GetDllCharacteristics();
 		bool IsDeterministicBuild();
+		bool HasRichHeader();
 
 	private:
 		PIMAGE_DATA_DIRECTORY GetDataDirectory();
@@ -103,6 +104,7 @@ namespace peinfo
 	{
 		std::wstring Name;
 		std::wstring Value;
+		std::wstring Note; // optional; empty when the value needs no further explanation
 	};
 
 	struct PeFileFormattedInfoCategory
@@ -129,7 +131,7 @@ namespace peinfo
 		std::wstring GetPlatform();
 		std::wstring GetTimeDateStamp();
 		std::wstring GetSubsystem();
-		std::wstring GetToolset();
+		PeFileFormattedInfoItem GetToolsetItem();
 		std::wstring GetConfiguration();
 		std::wstring GetDepStatus();
 		std::wstring GetAslrStatus();

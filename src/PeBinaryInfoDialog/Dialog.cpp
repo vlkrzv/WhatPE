@@ -33,6 +33,10 @@ namespace
 		lvColumn.pszText = const_cast<LPWSTR>(L"Value");
 		ListView_InsertColumn(hwndListView, 1, &lvColumn);
 
+		lvColumn.cx = 220;
+		lvColumn.pszText = const_cast<LPWSTR>(L"Note");
+		ListView_InsertColumn(hwndListView, 2, &lvColumn);
+
 		for (size_t i = 0; i < category.Items.size(); ++i)
 		{
 			const auto& item = category.Items[i];
@@ -48,10 +52,18 @@ namespace
 			lvItem.iSubItem = 1;
 			lvItem.pszText = const_cast<LPWSTR>(item.Value.c_str());
 			ListView_SetItem(hwndListView, &lvItem);
+
+			if (!item.Note.empty())
+			{
+				lvItem.iSubItem = 2;
+				lvItem.pszText = const_cast<LPWSTR>(item.Note.c_str());
+				ListView_SetItem(hwndListView, &lvItem);
+			}
 		}
 
 		ListView_SetColumnWidth(hwndListView, 0, LVSCW_AUTOSIZE_USEHEADER);
 		ListView_SetColumnWidth(hwndListView, 1, LVSCW_AUTOSIZE_USEHEADER);
+		ListView_SetColumnWidth(hwndListView, 2, LVSCW_AUTOSIZE_USEHEADER);
 	}
 
 	void LayoutTabContent(HWND hwndTab, HWND hwndListView)
