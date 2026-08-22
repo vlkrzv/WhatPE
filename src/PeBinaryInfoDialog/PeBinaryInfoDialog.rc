@@ -1,0 +1,11 @@
+#include "Resource.h"
+#include <windows.h>
+
+IDD_MAIN DIALOGEX 0, 0, 320, 220
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "WhatPE"
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    CONTROL         "", IDC_TAB, "SysTabControl32", WS_TABSTOP, 7, 7, 306, 184
+    DEFPUSHBUTTON   "Close", IDC_CLOSE, 259, 199, 54, 14
+END

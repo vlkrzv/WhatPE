@@ -17,10 +17,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PeBinaryInfoShellExt", "PeB
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PeBinaryInfoExplorerCommand", "PeBinaryInfoExplorerCommand\PeBinaryInfoExplorerCommand.vcxproj", "{691DD4C4-FDA8-477A-9EAA-41D68C00A2F3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PeBinaryInfoDialog", "PeBinaryInfoDialog\PeBinaryInfoDialog.vcxproj", "{2F1A6B8E-5C90-4E77-9C3E-2A2C0E9E6B41}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5DE5F959-AE4F-47FC-86A6-5B22E2A4F956} = {5DE5F959-AE4F-47FC-86A6-5B22E2A4F956}
+	EndProjectSection
+EndProject
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "WhatPE.Package", "WhatPE.Package\WhatPE.Package.wapproj", "{6F2C9F0C-9C7C-4C5E-9E44-2E7C7C0F3E9A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{3AE382EF-714D-4A42-AB8F-B0D216F2C16A} = {3AE382EF-714D-4A42-AB8F-B0D216F2C16A}
 		{691DD4C4-FDA8-477A-9EAA-41D68C00A2F3} = {691DD4C4-FDA8-477A-9EAA-41D68C00A2F3}
+		{2F1A6B8E-5C90-4E77-9C3E-2A2C0E9E6B41} = {2F1A6B8E-5C90-4E77-9C3E-2A2C0E9E6B41}
 	EndProjectSection
 EndProject
 Global
@@ -63,6 +69,10 @@ Global
 		{691DD4C4-FDA8-477A-9EAA-41D68C00A2F3}.Debug|x64.Build.0 = Debug|x64
 		{691DD4C4-FDA8-477A-9EAA-41D68C00A2F3}.Release|x64.ActiveCfg = Release|x64
 		{691DD4C4-FDA8-477A-9EAA-41D68C00A2F3}.Release|x64.Build.0 = Release|x64
+		{2F1A6B8E-5C90-4E77-9C3E-2A2C0E9E6B41}.Debug|x64.ActiveCfg = Debug|x64
+		{2F1A6B8E-5C90-4E77-9C3E-2A2C0E9E6B41}.Debug|x64.Build.0 = Debug|x64
+		{2F1A6B8E-5C90-4E77-9C3E-2A2C0E9E6B41}.Release|x64.ActiveCfg = Release|x64
+		{2F1A6B8E-5C90-4E77-9C3E-2A2C0E9E6B41}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

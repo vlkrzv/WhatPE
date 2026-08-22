@@ -9,9 +9,15 @@
 
 CExplorerCommandModule _AtlModule;
 
+HMODULE g_hModule = nullptr;
+
 extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 {
-	hInstance;
+	if (dwReason == DLL_PROCESS_ATTACH)
+	{
+		g_hModule = hInstance;
+	}
+
 	return _AtlModule.DllMain(dwReason, lpReserved);
 }
 

@@ -51,6 +51,10 @@
       <Project>{691dd4c4-fda8-477a-9eaa-41d68c00a2f3}</Project>
       <Name>PeBinaryInfoExplorerCommand</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PeBinaryInfoDialog\PeBinaryInfoDialog.vcxproj">
+      <Project>{2f1a6b8e-5c90-4e77-9c3e-2a2c0e9e6b41}</Project>
+      <Name>PeBinaryInfoDialog</Name>
+    </ProjectReference>
   </ItemGroup>
   <!--
     Substitutes the real package Publisher identity (kept out of source control - see

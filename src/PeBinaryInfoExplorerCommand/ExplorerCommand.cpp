@@ -43,12 +43,12 @@ IFACEMETHODIMP CExplorerCommandVerb::GetState(IShellItemArray* items, BOOL /*okT
 	return S_OK;
 }
 
-// The GUI dialog project (planned next) will replace this - for now this points at the
-// existing console PeBinaryInfo tool, packaged as a sibling project under the same MSIX package.
+extern HMODULE g_hModule;
+
 std::wstring CExplorerCommandVerb::GetTargetExePath()
 {
 	WCHAR modulePath[MAX_PATH]{};
-	if (0 == GetModuleFileNameW(nullptr, modulePath, MAX_PATH))
+	if (0 == GetModuleFileNameW(g_hModule, modulePath, MAX_PATH))
 	{
 		return std::wstring();
 	}
@@ -57,7 +57,7 @@ std::wstring CExplorerCommandVerb::GetTargetExePath()
 	PathRemoveFileSpecW(modulePath);   // package root
 
 	std::wstring targetPath = modulePath;
-	targetPath += L"\\PeBinaryInfo\\WhatPE.exe";
+	targetPath += L"\\PeBinaryInfoDialog\\WhatPE.Dialog.exe";
 
 	return targetPath;
 }

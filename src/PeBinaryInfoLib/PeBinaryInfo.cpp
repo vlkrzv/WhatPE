@@ -275,14 +275,11 @@ namespace peinfo
 		std::vector<PeFileFormattedInfoCategory> categories;
 
 		PeFileFormattedInfoItem description = { L"Description", GetDescription() };
-		PeFileFormattedInfoCategory generalCategory = { L"General", { description } };
-		categories.push_back(generalCategory);
-
 		PeFileFormattedInfoItem buildTime = { L"Build time", GetTimeDateStamp() };
 		PeFileFormattedInfoItem configuration = { L"Configuration", GetConfiguration() };
 		PeFileFormattedInfoItem platform = { L"Platform", GetPlatform() };
 		PeFileFormattedInfoItem toolset = { L"Toolset", GetToolset() };
-		PeFileFormattedInfoCategory buildCategory = { L"Build", { buildTime, configuration, platform, toolset } };
+		PeFileFormattedInfoCategory buildCategory = { L"Build", { description, buildTime, configuration, platform, toolset } };
 		categories.push_back(buildCategory);
 
 		ClrHeaderInfo clrHeaderInfo = peFileInfoExtractor_.GetClrHeaderInfo();
